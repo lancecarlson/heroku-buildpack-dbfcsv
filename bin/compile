@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -e            # fail fast
+set -o pipefail   # don't ignore exit codes when piping output
+set -x          # enable debugging
+
+build_dir=$1
+cache_dir=$2
+env_dir=$3
+
+bp_dir=$(cd $(dirname $0); cd ..; pwd)
+
+# Load some convenience functions like status(), echo(), and indent()
+source $bp_dir/bin/common.sh
+
+mkdir -p $build_dir/vendor/dbfcsv/bin
+
+# Download dbfcsv
+status "Downloading dbfcsv"
+dbfcsv_url="https://github.com/lancecarlson/dbfcsv/releases/download/v0.1/dbfcsv_linux_amd64"
+curl -L -s $dbfcsv_url > $build_dir/dbfcsv
+
+chmod +x $build_dir/dbfcsv
+mv $build_dir/dbfcsv $build_dir/vendor/dbfcsv/bin/dbfcsv
+
+mkdir -p $build_dir/.profile.d
+echo 'PATH=$PATH:$HOME/vendor/dbfcsv/bin' > $build_dir/.profile.d/dbfcsv.sh
